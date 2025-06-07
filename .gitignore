@@ -1,4 +1,4 @@
-env/
+venv/
 *.pyc
 __pycache__/
 *.log
@@ -8,8 +8,8 @@ __pycache__/
 .idea/
 build/
 dist/
-flutter_frontend/.dart_tool/
-flutter_frontend/.packages
+mobile_app/mobile_app/flutter_frontend/.dart_tool/
+mobile_app/flutter_frontend/.packages
 node_modules/
 .DS_Store
 docker-compose.override.yml
