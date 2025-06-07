@@ -1,6 +1,7 @@
-Tenant Management Project
+Tenant Management 
+
 Overview
-The Tenant Management Project is a microservices-based application designed to streamline tenant and property management. It leverages modern frameworks, cloud-native tools, and third-party integrations to provide scalable, maintainable, and efficient backend services and frontend interfaces.
+The Tenant Management is a microservices-based application designed to use modern frameworks, cloud-native tools, and third-party integrations to provide scalable, maintainable, and efficient backend services and frontend interfaces.
 
 This project consists of multiple services including:
 
