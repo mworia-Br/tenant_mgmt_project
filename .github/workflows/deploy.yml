@@ -6,7 +6,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAMESPACE: ${{ github.repository_owner }}
   KUBE_NAMESPACE: tenant-mgmt
 
 jobs:
@@ -24,15 +23,18 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: 🔁 Convert repository owner to lowercase
+      run: echo "IMAGE_NAMESPACE_LC=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
     - name: 🐳 Build & Push Django API Image
       run: |
-        docker build backend/django_api -t $REGISTRY/$IMAGE_NAMESPACE/tenant-django-api:latest
-        docker push $REGISTRY/$IMAGE_NAMESPACE/tenant-django-api:latest
+        docker build backend/django_api -t $REGISTRY/$IMAGE_NAMESPACE_LC/tenant-django-api:latest
+        docker push $REGISTRY/$IMAGE_NAMESPACE_LC/tenant-django-api:latest
 
     - name: 🐳 Build & Push FastAPI Worker Image
       run: |
-        docker build backend/fastapi_worker -t $REGISTRY/$IMAGE_NAMESPACE/tenant-fastapi-worker:latest
-        docker push $REGISTRY/$IMAGE_NAMESPACE/tenant-fastapi-worker:latest
+        docker build backend/fastapi_worker -t $REGISTRY/$IMAGE_NAMESPACE_LC/tenant-fastapi-worker:latest
+        docker push $REGISTRY/$IMAGE_NAMESPACE_LC/tenant-fastapi-worker:latest
 
     - name: 📂 Set up kubectl
       uses: azure/setup-kubectl@v3
