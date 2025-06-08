@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-worker
+  namespace: tenant-mgmt
+spec:
+  selector:
+    app: fastapi-worker
+  ports:
+    - port: 9000
+      targetPort: 9000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-worker
+  namespace: tenant-mgmt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi-worker
+  template:
+    metadata:
+      labels:
+        app: fastapi-worker
+    spec:
+      containers:
+        - name: fastapi-worker
+          image: tenant-fastapi-worker:latest
+          ports:
+            - containerPort: 9000
+          env:
+            - name: REDIS_URL
+              value: redis://redis:6379/0

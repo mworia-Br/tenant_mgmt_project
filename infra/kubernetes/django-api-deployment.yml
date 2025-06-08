@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-api
+  namespace: tenant-mgmt
+spec:
+  selector:
+    app: django-api
+  ports:
+    - port: 8000
+      targetPort: 8000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-api
+  namespace: tenant-mgmt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-api
+  template:
+    metadata:
+      labels:
+        app: django-api
+    spec:
+      containers:
+        - name: django-api
+          image: tenant-django-api:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: postgres://tenantadmin:secret@postgres:5432/tenantdb
