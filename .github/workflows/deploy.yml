@@ -8,6 +8,10 @@ env:
   REGISTRY: ghcr.io
   KUBE_NAMESPACE: tenant-mgmt
 
+permissions:
+  packages: write
+  contents: read
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
