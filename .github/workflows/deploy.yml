@@ -7,6 +7,7 @@ on:
 env:
   REGISTRY: ghcr.io
   KUBE_NAMESPACE: tenant-mgmt
+  DEPLOY_TO_K8S: false  # Change to 'true'
 
 permissions:
   packages: write
@@ -51,6 +52,7 @@ jobs:
         echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
 
     - name: 🚀 Deploy to Kubernetes (no validation for local cluster)
+      if: env.DEPLOY_TO_K8S == 'true'
       run: |
         mkdir -p ~/.kube
         echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
