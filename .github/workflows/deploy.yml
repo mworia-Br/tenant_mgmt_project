@@ -50,11 +50,14 @@ jobs:
         mkdir -p ~/.kube
         echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
 
-
-    - name: 🚀 Deploy to Kubernetes
+    - name: 🚀 Deploy to Kubernetes (no validation for local cluster)
       run: |
-        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/postgres-deployment.yml
-        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/redis-deployment.yml
-        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/django-api-deployment.yml
-        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/fastapi-worker-deployment.yml
-        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/ingress.yml
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+
+        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/postgres-deployment.yml --validate=false
+        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/redis-deployment.yml --validate=false
+        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/django-api-deployment.yml --validate=false
+        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/fastapi-worker-deployment.yml --validate=false
+        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/ingress.yml --validate=false
+
