@@ -1,11 +1,52 @@
-name: CI/CD
+name: CI/CD Pipeline
 
-on: [push]
+on:
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: ${{ github.repository_owner }}
+  KUBE_NAMESPACE: tenant-mgmt
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Build and Push Docker Images
-        run: docker build . -t ghcr.io/user/app && docker push ghcr.io/user/app
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v3
+
+    - name: 🔐 Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🐳 Build & Push Django API Image
+      run: |
+        docker build backend/django_api -t $REGISTRY/$IMAGE_NAMESPACE/tenant-django-api:latest
+        docker push $REGISTRY/$IMAGE_NAMESPACE/tenant-django-api:latest
+
+    - name: 🐳 Build & Push FastAPI Worker Image
+      run: |
+        docker build backend/fastapi_worker -t $REGISTRY/$IMAGE_NAMESPACE/tenant-fastapi-worker:latest
+        docker push $REGISTRY/$IMAGE_NAMESPACE/tenant-fastapi-worker:latest
+
+    - name: 📂 Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    - name: 🔑 Configure Kubeconfig
+      run: |
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+
+    - name: 🚀 Deploy to Kubernetes
+      run: |
+        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/postgres-deployment.yml
+        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/redis-deployment.yml
+        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/django-api-deployment.yml
+        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/fastapi-worker-deployment.yml
+        kubectl apply -n $KUBE_NAMESPACE -f infra/kubernetes/ingress.yml
